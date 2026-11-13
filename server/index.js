@@ -39,7 +39,7 @@ const app = express();
 // Set FRONTEND_ORIGINS to a comma-separated list of your deployed frontend URLs.
 const allowedFrontendOrigins = (process.env.FRONTEND_ORIGINS || "http://localhost:3000,http://localhost:5173")
   .split(",")
-  .map((value) => value.trim().replace(/\\/$/, ""))
+  .map((value) => { const clean = value.trim(); return clean.endsWith("/") ? clean.slice(0, -1) : clean; })
   .filter(Boolean);
 app.use(
   cors({
