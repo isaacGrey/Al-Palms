@@ -35,10 +35,18 @@ const pool = mysql.createPool({
 
 const app = express();
 
-// ✅ allow frontend (React) with cookies
+// Allow only explicitly configured frontend origins (local development + Vercel).
+// Set FRONTEND_ORIGINS to a comma-separated list of your deployed frontend URLs.
+const allowedFrontendOrigins = (process.env.FRONTEND_ORIGINS || "http://localhost:3000,http://localhost:5173")
+  .split(",")
+  .map((value) => value.trim().replace(/\\/$/, ""))
+  .filter(Boolean);
 app.use(
   cors({
-    origin: "http://localhost:3000", // or yung domain mo pag naka-deploy
+    origin: (origin, callback) => {
+      if (!origin || allowedFrontendOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS origin not allowed"));
+    },
     credentials: true,
   })
 );
